@@ -8,11 +8,11 @@
 #include <string>
 
 
-class Pool : public Layer {
+class Pooling : public Layer {
 public:
-    Pool(int ker_size = 2, int stride = 1, int pad = 0);
+    Pooling(int ker_size = 2, int stride = 1, int pad = 0);
 
-    ~Pool();
+    ~Pooling();
 
     void forward();
 

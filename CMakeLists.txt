@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
-project(TAS LANGUAGES CUDA CXX)
+find_package(CUDA QUIET REQUIRED)
+project(TAS CUDA CXX)
 
 set(CMAKE_CUDA_STANDARD 20)
 

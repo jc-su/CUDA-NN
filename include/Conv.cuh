@@ -7,16 +7,13 @@
 #include <memory>
 #include <string>
 
-#include <cublas.h>
-#include <cublas_v2.h>
 
-
-class ConvLayer : public Layer {
+class Conv : public Layer {
 public:
-    ConvLayer(cublasHandle_t &cublas_handle_p, const std::string &w_path, int stride = 1, int pad = 0,
-              bool bias = true);
+    Conv(Tensor<float> weights, int stride = 1, int pad = 0,
+         bool bias = true);
 
-    ~ConvLayer();
+    ~Conv();
 
     void forward();
 
@@ -32,7 +29,6 @@ private:
     int batch_size, N, C, H, W, _pad, _stride;
     int m, n, k;
     bool input_set, _bias;
-    cublasHandle_t &cublas_handle;
 };
 
 #endif//TAS_CONV_CUH

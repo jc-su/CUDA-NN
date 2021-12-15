@@ -1,20 +1,20 @@
-#include "MaxPoolLayer.hpp"
+#include "Pooling.hpp"
 #include "Tensor.hpp"
 #include <stdexcept>
 
 
-MaxPoolLayer::MaxPoolLayer(int ker_size_p, int stride_p, int pad_p) : _stride(stride_p),
-                                                                      _pad(pad_p),
-                                                                      H(ker_size_p),
-                                                                      W(ker_size_p) {
+Pooling::Pooling(int ker_size_p, int stride_p, int pad_p) : _stride(stride_p),
+                                                            _pad(pad_p),
+                                                            H(ker_size_p),
+                                                            W(ker_size_p) {
 }
 
-MaxPoolLayer::~MaxPoolLayer() {
+Pooling::~Pooling() {
 }
 
 
 __global__ void
-maxpool2d(float *src, float *res, int Hf, int Wf, int C, int Ho, int Wo, int Hi, int Wi, int batch_size, int stride,
+pooling2d(float *src, float *res, int Hf, int Wf, int C, int Ho, int Wo, int Hi, int Wi, int batch_size, int stride,
           int pad, float pad_val = 0) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int i_mat_stride = C * Hi * Wi;
@@ -59,7 +59,7 @@ maxpool2d(float *src, float *res, int Hf, int Wf, int C, int Ho, int Wo, int Hi,
     res[ni * o_mat_stride + ci * (Ho * Wo) + hi * (Wo) + wi] = resf;
 }
 
-void MaxPoolLayer::forward() {
+void Pooling::forward() {
     int cell_size = 32;
     dim3 block_size;
     dim3 grid_size;
@@ -74,7 +74,7 @@ void MaxPoolLayer::forward() {
 }
 
 
-void MaxPoolLayer::set_input(std::shared_ptr<Tensor<float>> input) {
+void Pooling::set_input(std::shared_ptr<Tensor<float>> input) {
     if (input->size().size() != 4) {
         throw std::runtime_error("not four dims in input");
     }
@@ -92,6 +92,6 @@ void MaxPoolLayer::set_input(std::shared_ptr<Tensor<float>> input) {
     _res = std::shared_ptr<Tensor<float>>(new Tensor<float>({batch_size, C, Ho, Wo}));
 }
 
-std::shared_ptr<Tensor<float>> MaxPoolLayer::get_output() {
+std::shared_ptr<Tensor<float>> Pooling::get_output() {
     return _res;
 }
