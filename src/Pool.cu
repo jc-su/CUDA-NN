@@ -1,5 +1,5 @@
-#include "Pooling.hpp"
-#include "Tensor.hpp"
+#include "Tensor.cuh"
+#include "Pool.cuh"
 #include <stdexcept>
 
 
@@ -9,12 +9,11 @@ Pooling::Pooling(int ker_size_p, int stride_p, int pad_p) : _stride(stride_p),
                                                             W(ker_size_p) {
 }
 
-Pooling::~Pooling() {
-}
+Pooling::~Pooling() = default;
 
 
 __global__ void
-pooling2d(float *src, float *res, int Hf, int Wf, int C, int Ho, int Wo, int Hi, int Wi, int batch_size, int stride,
+pooling2d(const float *src, float *res, int Hf, int Wf, int C, int Ho, int Wo, int Hi, int Wi, int batch_size, int stride,
           int pad, float pad_val = 0) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int i_mat_stride = C * Hi * Wi;
@@ -70,11 +69,11 @@ void Pooling::forward() {
     block_size = dim3(cell_size);
     grid_size = dim3(num_blocks_x);
 
-    maxpool2d<<<grid_size, block_size>>>(_input->_ptr, _res->_ptr, H, W, C, Ho, Wo, Hi, Wi, batch_size, _stride, _pad);
+    pooling2d<<<grid_size, block_size>>>(_input->_ptr, _res->_ptr, H, W, C, Ho, Wo, Hi, Wi, batch_size, _stride, _pad);
 }
 
 
-void Pooling::set_input(std::shared_ptr<Tensor<float>> input) {
+void Pooling::set_input(const std::shared_ptr<Tensor<float>>& input) {
     if (input->size().size() != 4) {
         throw std::runtime_error("not four dims in input");
     }

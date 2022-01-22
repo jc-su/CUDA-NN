@@ -1,11 +1,12 @@
-#include "Tensor.hpp"
+#include <utility>
+
+#include "Tensor.cuh"
 
 template<typename T>
-Tensor<T>::Tensor(Size size_p) : _size(size_p),
-                                 _ndim(size_p.size()) {
+Tensor<T>::Tensor(Size size_p) : _size(std::move(size_p)) {
     _count = 1;
-    for (int i = 0; i < _size.size(); ++i) {
-        _count *= _size[i];
+    for (int i : _size) {
+        _count *= i;
     }
     cudaMalloc(&_ptr, _count * sizeof(T));
 }
@@ -17,7 +18,7 @@ Tensor<T>::~Tensor() {
 
 template<typename T>
 int Tensor<T>::n_dim() const {
-    return _ndim;
+    return _n_dim;
 }
 
 template<typename T>
@@ -43,8 +44,8 @@ const Size &Tensor<T>::size() {
 template<typename T>
 Tensor<T> &Tensor<T>::reshape(const Size &new_size) {
     int new_count = 1;
-    for (int i = 0; i < new_size.size(); ++i) {
-        new_count *= new_size[i];
+    for (int i : new_size) {
+        new_count *= i;
     }
     if (new_count != _count) {
         throw std::runtime_error("reshape wrong size");
@@ -59,7 +60,7 @@ template<typename T>
 Tensor<T> *Tensor<T>::transpose(Tensor<T> *src, Tensor<T> *dst, const std::vector<int> &order) {
     // create arrays for reshape
     std::shared_ptr<Tensor<int>> _dims, _reorder, _strides, _new_strides;
-    int n_dims = src->ndim();
+    int n_dims = src->n_dim();
 
     Size dims_cpu(src->size());
     _dims = std::shared_ptr<Tensor<int>>(new Tensor<int>({n_dims}));

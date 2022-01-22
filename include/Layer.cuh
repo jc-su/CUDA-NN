@@ -4,8 +4,6 @@
 class Layer {
 public:
     virtual void forward() = 0;
-
-private:
 };
 
 #endif//TAS_LAYER_CUH

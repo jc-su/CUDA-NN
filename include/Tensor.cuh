@@ -14,7 +14,7 @@ template<typename T>
 class Tensor {
 
 public:
-    Tensor(Size size_p);
+    explicit Tensor(Size size_p);
 
     virtual ~Tensor();
 

@@ -15,7 +15,7 @@ void cuda_div(T *src1, T *src2, T *res, int N);
 
 template<typename T>
 __global__ void
-transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int Ndims);
+transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int n_dims);
 
 template<typename T>
 void cuda_transpose(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int Ndims, int N);

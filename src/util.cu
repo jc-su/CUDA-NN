@@ -89,7 +89,7 @@ void cuda_div(T *src1, T *src2, T *res, int N) {
 
 
 template<typename T>
-__global__ void transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int Ndims, int N) {
+__global__ void transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int n_dims, int N) {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     if (i >= N) {
         return;
@@ -97,7 +97,7 @@ __global__ void transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *stride
 
     int new_idx[10];
     int acc = 0;
-    for (int k = 0; k < Ndims; ++k) {
+    for (int k = 0; k < n_dims; ++k) {
         int cur_i = (i - acc) / strides[k];
         acc += cur_i * strides[k];
 
@@ -105,7 +105,7 @@ __global__ void transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *stride
     }
 
     int new_i = 0;
-    for (int k = 0; k < Ndims; ++k) {
+    for (int k = 0; k < n_dims; ++k) {
         new_i += new_strides[k] * new_idx[k];
     }
 
@@ -113,7 +113,7 @@ __global__ void transpose_ker(T *src_ptr, T *dst_ptr, int *src_dims, int *stride
 }
 
 template<typename T>
-void cuda_transpose(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int Ndims, int N) {
+void cuda_transpose(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *reorder, int *new_strides, int n_dims, int N) {
     int cell_size = 32;
     dim3 block_size;
     dim3 grid_size;
@@ -122,7 +122,7 @@ void cuda_transpose(T *src_ptr, T *dst_ptr, int *src_dims, int *strides, int *re
     block_size = dim3(cell_size);
     grid_size = dim3(num_blocks_x);
 
-    transpose_ker<<<grid_size, block_size>>>(src_ptr, dst_ptr, src_dims, strides, reorder, new_strides, Ndims, N);
+    transpose_ker<<<grid_size, block_size>>>(src_ptr, dst_ptr, src_dims, strides, reorder, new_strides, n_dims, N);
 }
 
 __global__ void im2col(float *im_ptr, float *res_ptr, int Nf, int Cf, int Hf, int Wf, int Ho, int Wo, int Hi, int Wi, int batch_size, int stride, int pad, float pad_val = 0) {
